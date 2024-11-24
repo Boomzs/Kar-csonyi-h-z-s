@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karácsonyi Húzás</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        select, button {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <h1>Karácsonyi Húzás</h1>
+    <p>Válaszd ki, hogy ki vagy, majd húzz egy nevet!</p>
+    <select id="personSelect">
+        <option value="">Válassz egy nevet</option>
+        <option>Petra</option>
+        <option>Ákos</option>
+        <option>Era</option>
+        <option>Dóri</option>
+        <option>Zsombor</option>
+        <option>Viki</option>
+        <option>Gábor</option>
+        <option>Ambrus</option>
+        <option>Zoli</option>
+        <option>Dédi</option>
+        <option>Tamás</option>
+        <option>Anikó</option>
+    </select>
+    <br>
+    <button onclick="drawName()">Húzás</button>
+    <div id="adminControls" style="display:none; margin-top: 20px;">
+        <button onclick="requestReset()">Húzás alaphelyzetbe állítása</button>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        const names = ["Petra", "Ákos", "Era", "Dóri", "Zsombor", "Viki", "Gábor", "Ambrus", "Zoli", "Dédi", "Tamás", "Anikó"];
+        let drawPairs = [];
+        let drawnNames = [];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function generateDrawPairs() {
+            let shuffledNames = [...names];
+            shuffle(shuffledNames);
+
+            while (true) {
+                let valid = true;
+                drawPairs = [];
+
+                for (let i = 0; i < names.length; i++) {
+                    if (names[i] === shuffledNames[i]) {
+                        valid = false;
+                        break;
+                    }
+                    drawPairs.push({ person: names[i], drawn: shuffledNames[i] });
+                }
+
+                if (valid) break; // Ha érvényes a párosítás, kilépünk a ciklusból
+                shuffle(shuffledNames); // Keverjük újra a neveket
+            }
+        }
+
+        function drawName() {
+            const personSelect = document.getElementById("personSelect");
+            const person = personSelect.value;
+
+            if (!person) {
+                alert("Válassz egy nevet a húzáshoz!");
+                return;
+            }
+
+            if (drawnNames.includes(person)) {
+                alert("Már húztál egy nevet!");
+                return;
+            }
+
+            const pair = drawPairs.find(pair => pair.person === person);
+            if (!pair) {
+                alert("Nem található érvényes húzás a nevedhez.");
+                return;
+            }
+
+            drawnNames.push(person); // Jelöljük, hogy az illető már húzott
+
+            document.getElementById("result").innerText = `${person}, te ${pair.drawn} nevét húztad ki!`;
+
+            if (person === "Zsombor") {
+                document.getElementById("adminControls").style.display = "block";
+            }
+        }
+
+        function requestReset() {
+            const password = prompt("Add meg a jelszót az alaphelyzetbe állításhoz:");
+            if (password === "MajaDome") {
+                resetDraw();
+            } else {
+                alert("Helytelen jelszó! Az alaphelyzetbe állítás nem történt meg.");
+            }
+        }
+
+        function resetDraw() {
+            drawnNames = [];
+            generateDrawPairs();
+            document.getElementById("result").innerText = "";
+            document.getElementById("personSelect").value = "";
+            alert("A húzás vissza lett állítva!");
+            document.getElementById("adminControls").style.display = "none";
+        }
+
+        // Alapértelmezésként generáljuk az érvényes párosítást
+        generateDrawPairs();
+    </script>
+</body>
+</html>
